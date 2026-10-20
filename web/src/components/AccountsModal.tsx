@@ -25,6 +25,7 @@ const TABS: Array<{ provider: ProviderId; label: string; eyebrow: string }> = [
 ];
 
 const HINT_BY_PROVIDER: Record<ProviderId, string> = {
+  antigravity: t("提醒：Antigravity CLI (agy) 使用本機認證與對話 ID。"),
   codex: t("提醒：每個帳號各自獨立登入。已開始對話的 NPC 換帳號會清空它的對話記憶（Codex 端無法沿用原本對話）——切換時會先詢問你確認。"),
   claude: t("提醒：每個帳號各自獨立登入。已開始對話的 NPC 換帳號會清空它的對話記憶（Claude 端無法沿用原本對話）——切換時會先詢問你確認。"),
 };

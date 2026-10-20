@@ -23,6 +23,7 @@ type Props = {
 };
 
 const DOCS: Record<ProviderId, string> = {
+  antigravity: "https://antigravity.google/docs/cli/reference",
   claude: "https://code.claude.com/docs/en/setup",
   codex: "https://learn.chatgpt.com/docs/codex/cli",
 };

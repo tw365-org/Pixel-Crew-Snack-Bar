@@ -128,6 +128,7 @@ export function WorkspacePicker({ required = false, mode = "move", currentPath, 
 
         {creating && newWorkerProvider && (() => {
           const accountsByProvider = {
+            antigravity: accounts?.filter((account) => account.provider === "antigravity") ?? [],
             claude: accounts?.filter((account) => account.provider === "claude") ?? [],
             codex: accounts?.filter((account) => account.provider === "codex") ?? [],
           };
@@ -142,17 +143,17 @@ export function WorkspacePicker({ required = false, mode = "move", currentPath, 
               value={`${selectedProvider}:${accountId ?? ""}`}
               onChange={(event) => {
                 const [provider, nextAccountId] = event.target.value.split(":", 2) as [ProviderId, string];
-                if (provider !== "claude" && provider !== "codex") return;
+                if (provider !== "claude" && provider !== "codex" && provider !== "antigravity") return;
                 onProviderChange?.(provider);
                 onAccountChange?.(nextAccountId || null);
               }}
             >
-              {(["claude", "codex"] as ProviderId[]).map((provider) => (
-                <optgroup key={provider} label={provider === "claude" ? "Claude Code" : "Codex"}>
-                  <option value={`${provider}:`}>{provider === "claude" ? "Claude Code" : "Codex"} · {t("使用共用登入")}</option>
+              {(["antigravity", "claude", "codex"] as ProviderId[]).map((provider) => (
+                <optgroup key={provider} label={provider === "antigravity" ? "Antigravity CLI" : provider === "claude" ? "Claude Code" : "Codex"}>
+                  <option value={`${provider}:`}>{provider === "antigravity" ? "Antigravity CLI" : provider === "claude" ? "Claude Code" : "Codex"} · {t("使用共用登入")}</option>
                   {accountsByProvider[provider].map((account) => (
                     <option key={account.id} value={`${provider}:${account.id}`} disabled={account.auth?.status !== "authenticated"}>
-                      {provider === "claude" ? "Claude Code" : "Codex"} · {account.label}{account.auth?.status !== "authenticated" ? t("（尚未登入）") : ""}
+                      {provider === "antigravity" ? "Antigravity" : provider === "claude" ? "Claude Code" : "Codex"} · {account.label}{account.auth?.status !== "authenticated" ? t("（尚未登入）") : ""}
                     </option>
                   ))}
                 </optgroup>

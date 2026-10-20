@@ -177,6 +177,7 @@ export function useWorkers() {
   >({});
   const [workflowRevisions, setWorkflowRevisions] = useState<Record<string, number>>({});
   const [auth, setAuth] = useState<Record<ProviderId, ProviderAuthState>>({
+    antigravity: defaultAuth("antigravity", "Antigravity CLI (agy)", "agy auth"),
     claude: defaultAuth("claude", "Claude Code", "claude auth login"),
     codex: defaultAuth("codex", "Codex", "codex login"),
   });
@@ -184,6 +185,7 @@ export function useWorkers() {
     provider, windows: [], loading: true, source: "empty", updatedAt: null, error: null,
   });
   const [providerUsage, setProviderUsage] = useState<Record<ProviderId, ProviderUsageState>>({
+    antigravity: emptyUsage("antigravity"),
     claude: emptyUsage("claude"),
     codex: emptyUsage("codex"),
   });
@@ -193,6 +195,7 @@ export function useWorkers() {
     startedAt: null, finishedAt: null, output: "", error: null,
   });
   const [providerInstalls, setProviderInstalls] = useState<Record<ProviderId, ProviderInstallState>>({
+    antigravity: emptyInstall("antigravity"),
     claude: emptyInstall("claude"),
     codex: emptyInstall("codex"),
   });
@@ -453,6 +456,7 @@ export function useWorkers() {
           setCapabilitiesByWorkspace((current) => ({
             ...current,
             [data.workspacePath]: {
+              antigravity: current[data.workspacePath]?.antigravity ?? emptyCapabilities(),
               claude: current[data.workspacePath]?.claude ?? emptyCapabilities(),
               codex: current[data.workspacePath]?.codex ?? emptyCapabilities(),
               [data.provider]: data.capabilities,

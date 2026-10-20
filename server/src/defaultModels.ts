@@ -8,6 +8,7 @@ export type ProviderDefaultModels = Record<ProviderId, string>;
 // A local provider setting wins. These are only fallbacks for a fresh CLI that
 // has not created its settings file yet.
 export const FALLBACK_DEFAULT_MODELS: ProviderDefaultModels = {
+  antigravity: "gemini-3.8-flash-medium",
   claude: "sonnet",
   codex: "gpt-5.6-terra",
 };

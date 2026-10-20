@@ -1,3 +1,4 @@
+import type { ProviderId } from "./types";
 import { t } from "./i18n";
 
 export type PaletteEntry = { name: string; description: string; argumentHint?: string };
@@ -29,11 +30,11 @@ export function mergePaletteNames(library: PaletteEntry[], slashCommands: string
  * its native controls use `/`, matching the official Codex composer.
  */
 export function buildProviderWorkflowEntries(
-  provider: "claude" | "codex",
+  provider: ProviderId,
   library: PaletteEntry[],
   slashCommands: string[],
 ): ProviderWorkflowEntry[] {
-  if (provider === "claude") {
+  if (provider === "claude" || provider === "antigravity") {
     return mergePaletteNames(library, slashCommands).map((entry) => ({
       ...entry,
       key: `slash-${entry.name}`,

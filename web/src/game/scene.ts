@@ -34,6 +34,9 @@ import { PersonalDeskLayer } from "./personalDesks";
 import type { DepartmentPhase, DepartmentSeat, DepartmentZone } from "./personalDesks";
 import { DECOR_SPOTS, OfficeDecor, OutboxShelf, type DecorSpot } from "./officeDecor";
 import { Cat } from "./cat";
+import { CanteenDecor } from "./canteenDecor";
+import { CanteenFamily, type FamilyRole } from "./canteenFamily";
+export type { FamilyRole };
 import { meetingSeat } from "./meetingSeats";
 import { isWallStation, wallStandSpot } from "./furnitureDefs";
 import { apiAssetUrl } from "../api";
@@ -155,6 +158,8 @@ export type SceneHandle = {
   setTodayDone(count: number): void;
   /** Today's failed jobs per worker — paper balls in each desk's bin. */
   setTodayFailures(byWorker: ReadonlyMap<string, number>): void;
+  triggerCatPurr?(): void;
+  triggerCoffeeCheer?(targetId?: string): void;
   destroy(): void;
 } & SceneCameraControls;
 
@@ -180,6 +185,7 @@ type SceneCallbacks = {
   onViewChange?(view: SceneView): void;
   /** Tap on a desk's queued-command sticky notes — the UI floats a card listing them. */
   onQueueNotes?(tap: QueueNotesTap): void;
+  onFamilyMemberClick?(role: FamilyRole): void;
 };
 
 type PersonEntry = {
@@ -355,6 +361,11 @@ export async function createScene(
   personalDesks.onQueueNotesTap = (tap) => callbacks.onQueueNotes?.(tap);
   const officeDecor = new OfficeDecor();
   const cat = new Cat();
+  const canteenDecor = new CanteenDecor();
+  const canteenFamily = new CanteenFamily();
+  canteenFamily.onMemberClick = (role) => {
+    callbacks.onFamilyMemberClick?.(role);
+  };
   const fx = new OfficeFx(world);
   const shelf = new OutboxShelf();
 
@@ -367,7 +378,7 @@ export async function createScene(
   const cues = new SystemCues();
   // Konami-code dance party.
   const party = new DiscoParty({ x: 0, y: 0, w: ART_W, h: ART_H }, { x: ART_W / 2, y: 0 });
-  world.addChild(room.container, personalDesks.container, officeDecor.container, officeDecor.meetingTable, shelf.container, particles.g, cat.container, fx.air, power.view, cues.g, party.view);
+  world.addChild(room.container, personalDesks.container, officeDecor.container, officeDecor.meetingTable, shelf.container, canteenDecor.container, canteenFamily.container, particles.g, cat.container, fx.air, power.view, cues.g, party.view);
 
   // Clickable decor: purely visual reactions, hover shows corner brackets.
   // A tap on decor still counts as "tapped the room" for the UI (closes the log).
@@ -1868,6 +1879,7 @@ export async function createScene(
     particles.update(dt);
     updateSocial(dt);
     cat.update(elapsed, dt);
+    canteenFamily.update(elapsed, dt);
     officeDecor.update(dt);
     hotspots.update();
     ripples.update(dt);

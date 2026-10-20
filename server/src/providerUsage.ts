@@ -375,6 +375,7 @@ export class ProviderUsageRegistry {
     private readonly getAuthStatus: (provider: ProviderId) => AuthStatus = () => "authenticated",
   ) {
     this.states = {
+      antigravity: idleState("antigravity", store.loadProviderUsage("antigravity")),
       claude: idleState("claude", store.loadProviderUsage("claude")),
       codex: idleState("codex", store.loadProviderUsage("codex")),
     };

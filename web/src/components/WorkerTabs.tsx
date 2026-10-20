@@ -62,6 +62,7 @@ const FILTERS: Array<{ id: CrewFilter; label: string }> = [
   { id: "attention", label: t("需處理") },
   { id: "claude", label: "Claude" },
   { id: "codex", label: "Codex" },
+  { id: "antigravity", label: "Antigravity" },
   { id: "room", label: t("此房間") },
 ];
 

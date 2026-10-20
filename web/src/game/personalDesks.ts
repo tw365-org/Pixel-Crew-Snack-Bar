@@ -172,7 +172,7 @@ export function departmentDeskLayout(workers: PersonalDeskState[]): DepartmentDe
   const standingGroups = [...groups.values()].filter((members) => !isBossGroup(members));
   const bossGroups = [...groups.values()].filter(isBossGroup);
 
-  const budget = ART_W - ROW_MARGIN * 2;
+  const budget = 448 - ROW_MARGIN * 2;
   type Chunk = { members: PersonalDeskState[]; left: number };
   const rows: Array<{ width: number; chunks: Chunk[] }> = [];
   const packGroups = (groupList: PersonalDeskState[][], forceOwnRow: boolean) => {

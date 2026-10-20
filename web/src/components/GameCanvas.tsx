@@ -37,6 +37,8 @@ const ACTIVITY_CHIP: Partial<Record<StationKey, { icon: IconName; label: string 
 import { NpcRadialMenu } from "./NpcRadialMenu";
 import { WebShotImg } from "./WebShotImg";
 import { Icon, type IconName } from "./Icon";
+import { SnackBarModal } from "./SnackBarModal";
+import type { FamilyRole } from "../game/canteenFamily";
 import { nextNeedsYou, type NeedsYouItem } from "../needsYou";
 
 const STATION_LABELS: Record<string, string> = Object.fromEntries(
@@ -505,6 +507,7 @@ export function GameCanvas({
   const turnStartRef = useRef(new Map<string, number>());
   const [, forceTick] = useState(0);
   const sceneRef = useRef<SceneHandle | null>(null);
+  const [snackBarRole, setSnackBarRole] = useState<FamilyRole | null>(null);
   const screenPositionsRef = useRef(new Map<string, { x: number; y: number }>());
   // The scene's hover, readable from the per-frame positions callback (nameplate declutter).
   const hoveredIdRef = useRef<string | null>(null);
@@ -872,6 +875,7 @@ export function GameCanvas({
         if (position) setMenuDirection(radialMenuDirection(position.x, host.getBoundingClientRect().width));
         setMenuOpenFor(id);
       },
+      onFamilyMemberClick: (role: FamilyRole) => setSnackBarRole(role),
       // 平移（拖曳、鏡頭滑動、跟拍）每幀都會回報；縮放列只關心這四個值，沒變就不重畫整個覆蓋層。
       onQueueNotes: (tap) => setNotesCard(tap),
       onViewChange: (next) => setView((current) => (
@@ -1445,7 +1449,7 @@ export function GameCanvas({
                     )}
                   </div>
                 )}
-                <small>{w.provider === "claude" ? "Claude Code" : "Codex"} · {w.model || t("預設模型")}</small>
+                <small>{w.provider === "antigravity" ? "Antigravity" : w.provider === "claude" ? "Claude Code" : "Codex"} · {w.model || t("預設模型")}</small>
                 <small>{dept ? `${dept.name} · ` : ""}{roomName(w.workspacePath)}</small>
                 <div className="npc-identity-card__stats">
                   <span className="npc-identity-card__stat">{t("完成 {count}", { count: doneTurns })}</span>
@@ -1593,6 +1597,7 @@ export function GameCanvas({
           </div>
         );
       })()}
+      <SnackBarModal role={snackBarRole} workers={workers} onClose={() => setSnackBarRole(null)} onSendCoffee={(wId) => sceneRef.current?.triggerCoffeeCheer?.(wId)} onCatCheer={() => sceneRef.current?.triggerCatPurr?.()} onCleanWarehouse={() => { void apiRequest("/api/backup/export").catch(() => {}); }} />
     </>
   );
 }

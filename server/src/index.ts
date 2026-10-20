@@ -41,6 +41,8 @@ import { buildCodexMcpAddArgs, CodexCapabilityRegistry, DEFAULT_CODEX_SLASH_COMM
 import { McpLoginTracker } from "./mcpLogin.js";
 import { LocalStore, type PersistedWorker, type ResumeCandidate } from "./store.js";
 import { ClaudeAuthProvider } from "./providers/claudeAuth.js";
+import { AntigravityAuthProvider } from "./providers/agyAuth.js";
+import { AgySession } from "./agyRunner.js";
 import { CodexAuthProvider } from "./providers/codexAuth.js";
 import { AccountRegistry } from "./accountRegistry.js";
 import { CodexAccountLoginTracker, type CodexAccountLoginMode } from "./codexAccountLogin.js";
@@ -473,10 +475,12 @@ migrateAmbientClaudeHome(config.defaultClaudeHome);
 const authProviders: Record<ProviderId, AgentAuthProvider> = {
   claude: new ClaudeAuthProvider(config.defaultClaudeHome),
   codex: new CodexAuthProvider(config.defaultCodexHome),
+  antigravity: new AntigravityAuthProvider(),
 };
 const authStates: Record<ProviderId, ProviderAuthState> = {
   claude: initialAuthState(authProviders.claude),
   codex: initialAuthState(authProviders.codex),
+  antigravity: initialAuthState(authProviders.antigravity),
 };
 const providerInstaller = new ProviderInstaller(async (provider) => {
   await refreshOneAuth(provider);
@@ -2122,6 +2126,15 @@ function createRunner(
   workspacePath: string,
   initialState?: { sessionId: string; completedTurns: number },
 ): AgentSession {
+  if (provider === "antigravity") {
+    return new AgySession(
+      (event) => record(worker, event),
+      workspacePath,
+      () => composeWorkerPrompt(worker),
+      () => worker.autoApproveMode,
+      initialState,
+    );
+  }
   return provider === "codex"
     ? new CodexSession(
         (event) => record(worker, event),
@@ -2265,7 +2278,15 @@ function missionRunnerFor(mission: DepartmentMission, worker: Worker): MissionRu
   );
   let handle: MissionRunnerHandle;
   const onEvent = (event: RunnerEvent) => recordMissionRunnerEvent(mission.id, worker.id, event);
-  const runner: AgentSession = worker.runner.provider === "codex"
+  const runner: AgentSession = worker.runner.provider === "antigravity"
+    ? new AgySession(
+        onEvent,
+        mission.workspacePath,
+        () => composeWorkerPrompt(worker),
+        () => missionRunnerApproveMode(worker.autoApproveMode, mission.origin),
+        checkpoint ? { sessionId: checkpoint.sessionId, completedTurns: checkpoint.completedTurns } : undefined,
+      )
+    : worker.runner.provider === "codex"
     ? new CodexSession(
         onEvent,
         mission.workspacePath,
@@ -2406,7 +2427,7 @@ function resolveDecisionRuntime(
   requestedModel: unknown,
   preferredWorkspace?: string | null,
 ): { provider: ProviderId; model: string } | { error: string } {
-  const explicitProvider: ProviderId | null = requestedProvider === "claude" || requestedProvider === "codex"
+  const explicitProvider: ProviderId | null = requestedProvider === "claude" || requestedProvider === "codex" || requestedProvider === "antigravity"
     ? requestedProvider
     : null;
   const explicitModel = collaborationText(requestedModel, 200);
@@ -2529,6 +2550,21 @@ function capabilitiesSnapshot(): Record<string, Record<ProviderId, ReturnType<Ca
   return Object.fromEntries(recentWorkspacePaths().map((workspacePath) => [
     workspacePath,
     {
+      antigravity: {
+        slashCommands: ["/help", "/clear", "/exit", "/goal", "/mode", "/model"],
+        mcpServers: [],
+        models: [
+          { id: "gemini-3.8-flash-medium", label: "Gemini 3.8 Flash (Medium)" },
+          { id: "gemini-3.8-flash-high", label: "Gemini 3.8 Flash (High)" },
+          { id: "gemini-4-argon-high", label: "Gemini 4 Argon (High)" },
+        ],
+        toolCount: null,
+        builtinTools: null,
+        loading: false,
+        source: "live",
+        updatedAt: null,
+        error: null,
+      },
       claude: claudeCapabilitiesFor(workspacePath).getState(),
       codex: codexCapabilitiesFor(workspacePath).getState(),
     },
@@ -2629,7 +2665,9 @@ function detachedRunner(
   persona: Persona | null,
   homeDir?: string,
 ): AgentSession {
-  const runner: AgentSession = provider === "codex"
+  const runner: AgentSession = provider === "antigravity"
+    ? new AgySession(onEvent, workspacePath, () => composePersonaPrompt(persona), () => "off", initialState)
+    : provider === "codex"
     ? new CodexSession(onEvent, workspacePath, () => composePersonaPrompt(persona), () => "off", initialState, () => homeDir ?? config.defaultCodexHome)
     : new ClaudeSession(onEvent, workspacePath, () => [], () => composePersonaPrompt(persona), () => "off", initialState, () => homeDir ?? config.defaultClaudeHome);
   if (model && validModel(provider, model)) runner.setModel(model);
@@ -9480,7 +9518,7 @@ app.post("/api/workers/:id/provider/fresh", (req, res) => {
   const worker = requireWorker(res, req.params.id);
   if (!worker) return;
   const sourceProvider = worker.runner.provider;
-  const targetProvider = req.body?.provider === "claude" || req.body?.provider === "codex"
+  const targetProvider = req.body?.provider === "claude" || req.body?.provider === "codex" || req.body?.provider === "antigravity"
     ? req.body.provider as ProviderId
     : null;
   if (!targetProvider || targetProvider === sourceProvider) {

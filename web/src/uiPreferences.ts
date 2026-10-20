@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 
 export type TaskLogView = "summary" | "activity";
-export type CrewFilter = "all" | "working" | "attention" | "claude" | "codex" | "room";
+export type CrewFilter = "all" | "working" | "attention" | "claude" | "codex" | "antigravity" | "room";
 
 export type FocusPaneLayout = 1 | 2 | 3 | 4;
 

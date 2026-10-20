@@ -19,7 +19,7 @@ const STAGES = [
   { id: "bootstrapping", label: t("新 LLM 讀取交接") },
 ] as const;
 
-const providerLabel = (provider: ProviderId) => provider === "claude" ? "Claude Code" : "Codex";
+const providerLabel = (provider: ProviderId) => provider === "antigravity" ? "Antigravity CLI" : provider === "claude" ? "Claude Code" : "Codex";
 
 export function ProviderHandoffDialog({ worker, toProvider, onPrepare, onStart, onDirectSwitch, onClose }: Props) {
   const initialTerminalHandoffId = useRef(

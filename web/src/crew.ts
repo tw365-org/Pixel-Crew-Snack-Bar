@@ -45,6 +45,7 @@ export function filterCrew(workers: WorkerState[], filter: CrewFilter, query: st
     if (filter === "attention" && attention !== "approval" && attention !== "error") return false;
     if (filter === "claude" && worker.provider !== "claude") return false;
     if (filter === "codex" && worker.provider !== "codex") return false;
+    if (filter === "antigravity" && worker.provider !== "antigravity") return false;
     if (filter === "room" && worker.workspacePath !== currentRoom) return false;
     return true;
   });

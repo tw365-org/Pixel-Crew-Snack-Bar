@@ -8,7 +8,7 @@ test("reads configured Claude and Codex default models without exposing other se
     if (path.endsWith(".claude/settings.json")) return JSON.stringify({ model: "sonnet", effortLevel: "high" });
     throw new Error("missing");
   });
-  assert.deepEqual(models, { claude: "sonnet", codex: "gpt-5.6-terra" });
+  assert.deepEqual(models, { antigravity: "gemini-3.8-flash-medium", claude: "sonnet", codex: "gpt-5.6-terra" });
 });
 
 test("uses documented baselines when a local provider config does not exist", () => {
@@ -22,5 +22,5 @@ test("reads Codex's config.toml from an explicit codexHome instead of ~/.codex, 
     if (path.endsWith(".claude/settings.json")) return JSON.stringify({ model: "sonnet" });
     throw new Error("missing");
   }, "/data/codex-home");
-  assert.deepEqual(models, { claude: "sonnet", codex: "gpt-5.6-terra" });
+  assert.deepEqual(models, { antigravity: "gemini-3.8-flash-medium", claude: "sonnet", codex: "gpt-5.6-terra" });
 });

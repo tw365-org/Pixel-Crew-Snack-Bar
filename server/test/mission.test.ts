@@ -323,7 +323,7 @@ test("a boss task never rewrites a member's own approval mode", () => {
   assert.doesNotMatch(source, /member\.autoApproveMode\s*=\s*"safe"/);
   const runnerFactory = source.slice(source.indexOf("function missionRunnerFor("), source.indexOf("function sendMissionRunner("));
   assert.doesNotMatch(runnerFactory, /\(\) => worker\.autoApproveMode,/);
-  assert.equal(runnerFactory.match(/missionRunnerApproveMode\(worker\.autoApproveMode, mission\.origin\)/g)?.length, 2);
+  assert.equal(runnerFactory.match(/missionRunnerApproveMode\(worker\.autoApproveMode, mission\.origin\)/g)?.length, 3);
 });
 
 test("the prepare API reports the correction budget missions actually get", () => {

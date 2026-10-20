@@ -48,6 +48,14 @@ export const DEFAULT_CLAUDE_MODELS: ModelOption[] = [
   { id: "fable", label: "Fable" },
 ];
 
+export const DEFAULT_ANTIGRAVITY_MODELS: ModelOption[] = [
+  { id: "gemini-3.8-flash-medium", label: "Gemini 3.8 Flash (Medium)", description: "Google Gemini 3.8 Flash with medium reasoning" },
+  { id: "gemini-3.8-flash-high", label: "Gemini 3.8 Flash (High)", description: "Google Gemini 3.8 Flash with high reasoning" },
+  { id: "gemini-4-argon-high", label: "Gemini 4 Argon (High)", description: "Google Gemini 4 flagship reasoning" },
+  { id: "gemini-4-argon-medium", label: "Gemini 4 Argon (Medium)", description: "Google Gemini 4 balanced reasoning" },
+  { id: "claude-sonnet-5-5-medium", label: "Claude Sonnet 5.5", description: "Claude Sonnet 5.5 via Antigravity" },
+];
+
 // The CLI's init event (and any cache written before this normalization
 // existed) reports the resolved full model id (e.g. "claude-sonnet-5"),
 // not the alias the user picked. Collapse it back to the alias so it

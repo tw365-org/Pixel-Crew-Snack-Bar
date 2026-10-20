@@ -1,6 +1,6 @@
 import type { StationKey } from "./stations";
 
-export type ProviderId = "claude" | "codex";
+export type ProviderId = "claude" | "codex" | "antigravity";
 
 export type McpLoginResult = {
   provider: ProviderId;

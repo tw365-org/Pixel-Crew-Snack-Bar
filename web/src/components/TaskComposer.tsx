@@ -786,7 +786,7 @@ export function TaskComposer({
         {attachmentsBlock}
         <div className="command-composer__toolbar">
           {palette && <button className="command-composer__library" type="button" onClick={() => palette.onOpenChange(!palette.open)} aria-expanded={palette.open} title={t("斜線指令面板（輸入 / 也能打開）")}>
-            ⌘ <span>{palette.provider === "claude" ? "CLAUDE" : "CODEX"}</span>
+            ⌘ <span>{palette.provider === "antigravity" ? "AGY" : palette.provider === "claude" ? "CLAUDE" : "CODEX"}</span>
           </button>}
           {fileInput}
           <button className="command-composer__attach" type="button" onClick={() => fileRef.current?.click()} title={t("附加圖片或文件")} aria-label={t("附加圖片或文件")}>＋</button>

@@ -44,7 +44,7 @@ async function destroyTerminalTab(id: string): Promise<boolean> {
   }
 }
 
-function providerLabel(provider: ProviderId): string { return provider === "codex" ? "Codex" : "Claude"; }
+function providerLabel(provider: ProviderId): string { return provider === "antigravity" ? "Antigravity" : provider === "codex" ? "Codex" : "Claude"; }
 function authenticated(status: ProviderAuthState["status"] | undefined): boolean { return status === "authenticated"; }
 
 function dismissSettingsMenu(event: React.KeyboardEvent<HTMLDetailsElement>): void {

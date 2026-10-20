@@ -1,15 +1,15 @@
 {
   "name": "pixel-crew",
   "version": "2.5.3",
-  "description": "A local multi-agent office for Claude Code and Codex.",
+  "description": "A local multi-agent office for Antigravity CLI, Claude Code and Codex with Snack Bar family.",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/juinwei7/Pixel-Crew.git"
+    "url": "git+https://github.com/tw365-org/Pixel-Crew-Snack-Bar.git"
   },
-  "homepage": "https://github.com/juinwei7/Pixel-Crew#readme",
+  "homepage": "https://github.com/tw365-org/Pixel-Crew-Snack-Bar#readme",
   "bugs": {
-    "url": "https://github.com/juinwei7/Pixel-Crew/issues"
+    "url": "https://github.com/tw365-org/Pixel-Crew-Snack-Bar/issues"
   },
   "private": true,
   "workspaces": ["server", "web"],

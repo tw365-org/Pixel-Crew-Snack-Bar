@@ -3,7 +3,9 @@ import { dayKey, tallyStrokes } from "./deskProps";
 
 // A multiple of 32 (the wall-panel seam spacing) and 16 (the floor-tile
 // spacing) so the rightmost panel/tile isn't a truncated partial segment.
-export const ART_W = 448;
+export const MAIN_OFFICE_W = 448;
+export const CANTEEN_W = 128;
+export const ART_W = 576;
 // 加高地板：桌子帶（BAND_BOTTOM=282）不變，底部 282~336 多出一塊空地當「作戰室會議區」，
 // 讓大會議桌不會撞到任何個人桌。視野會因應變高而稍微拉遠。
 export const ART_H = 336;

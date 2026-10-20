@@ -198,7 +198,7 @@ export class OutboxShelf {
 export type DecorSpot = "plantL" | "plantR" | "coffee" | "neon" | "cooler" | "beanbagL" | "beanbagR" | "tree" | "pizza";
 export const DECOR_SPOTS: Record<DecorSpot, { x: number; y: number; w: number; h: number }> = {
   plantL: { x: 10, y: 57, w: 12, h: 23 },
-  plantR: { x: ART_W - 13, y: 57, w: 12, h: 23 },
+  plantR: { x: 448 - 13, y: 57, w: 12, h: 23 },
   coffee: { x: 382, y: 66, w: 40, h: 26 },
   neon: { x: 177, y: 4, w: 58, h: 17 },
   cooler: { x: 370, y: 65, w: 12, h: 26 },
@@ -207,7 +207,7 @@ export const DECOR_SPOTS: Record<DecorSpot, { x: number; y: number; w: number; h
   tree: { x: 337, y: 304, w: 18, h: 28 },
   pizza: { x: 127, y: 293, w: 15, h: 11 },
 };
-const PLANT_X = [16, ART_W - 7];
+const PLANT_X = [16, 448 - 7];
 
 /** Decorative office areas that do not represent agent tool destinations. */
 export class OfficeDecor {

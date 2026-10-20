@@ -3,7 +3,7 @@ export type AssignmentDecisionMember = {
   name: string;
   role: string | null;
   instructions: string | null;
-  provider: "claude" | "codex";
+  provider: "claude" | "codex" | "antigravity";
 };
 
 export type AssignmentDecisionCandidate = {
