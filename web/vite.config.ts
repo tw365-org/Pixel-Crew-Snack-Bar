@@ -56,8 +56,8 @@ export default defineConfig({
     // Keep the development UI local while giving the remote-access sidecar a
     // deterministic address instead of relying on localhost's IPv4/IPv6 order.
     host: "127.0.0.1",
-    port: 5173,
-    strictPort: true,
+    port: Number(process.env.PORT || process.env.VITE_PORT) || 5174,
+    strictPort: false,
     proxy: {
       "/api": "http://127.0.0.1:8787",
       "/internal": "http://127.0.0.1:8787",
