@@ -1,10 +1,13 @@
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { dirname, join, resolve } from "node:path";
+import crossSpawn from "cross-spawn";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const isWindows = process.platform === "win32";
 const tsx = join(root, "node_modules", ".bin", isWindows ? "tsx.cmd" : "tsx");
+const tsxCli = resolve(root, "node_modules", "tsx", "dist", "cli.mjs");
 const serverDirectory = join(root, "server");
 
 export function restartDelayMs(attempt) {
@@ -26,11 +29,19 @@ const STABLE_RUN_MS = 30_000;
 
 function start() {
   const startedAt = Date.now();
-  child = spawn(tsx, ["watch", "src/index.ts"], {
-    cwd: serverDirectory,
-    stdio: "inherit",
-    windowsHide: true,
-  });
+  if (existsSync(tsxCli)) {
+    child = spawn(process.execPath, [tsxCli, "watch", "src/index.ts"], {
+      cwd: serverDirectory,
+      stdio: "inherit",
+      windowsHide: true,
+    });
+  } else {
+    child = crossSpawn(tsx, ["watch", "src/index.ts"], {
+      cwd: serverDirectory,
+      stdio: "inherit",
+      windowsHide: true,
+    });
+  }
 
   // A process can fail to spawn at all (e.g. ENOENT resolving tsx), in which
   // case 'close' is not guaranteed to follow 'error' — without a shared exit

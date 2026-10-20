@@ -29,6 +29,9 @@ const DOCS: Record<ProviderId, string> = {
 };
 
 export function providerInstallCommand(provider: ProviderId, platform = ""): string {
+  if (provider === "antigravity") return platform === "win32"
+    ? "winget install Google.Antigravity"
+    : "curl -fsSL https://antigravity.google/install.sh | bash";
   if (provider === "codex") return platform === "win32"
     ? "$env:CODEX_NON_INTERACTIVE=1; irm https://chatgpt.com/codex/install.ps1 | iex"
     : "curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh";
@@ -38,6 +41,7 @@ export function providerInstallCommand(provider: ProviderId, platform = ""): str
 }
 
 export function providerVerifyCommand(provider: ProviderId): string {
+  if (provider === "antigravity") return "agy --version";
   return provider === "claude" ? "claude --version" : "codex --version";
 }
 
@@ -101,7 +105,7 @@ export function AuthGate({
         </h1>
         <p className="auth-gate__body">
           {blocking
-            ? t("Claude Code 或 Codex 任一完成安裝與登入，就能開始工作。Pixel Crew 不會接收帳號、密碼或 token。")
+            ? t("Antigravity CLI、Claude Code 或 Codex 任一完成安裝與登入，就能開始工作。Pixel Crew 不會接收帳號、密碼或 token。")
             : t("辦公室仍可使用 {providers}。你可以先切換隊員，或依下方步驟設定 {name}。", { providers: readyProviders.map((provider) => providers[provider].displayName).join(tc("punct", " 或 ")), name: auth.displayName })}
         </p>
 
@@ -117,7 +121,7 @@ export function AuthGate({
               <section key={provider} className={`auth-provider-card auth-provider-card--${state.status}`} aria-label={t("{name} 連線設定", { name: state.displayName })}>
                 <header className="auth-provider-card__header">
                   <div>
-                    <span>{provider === "claude" ? "CL" : "CX"}</span>
+                    <span>{provider === "antigravity" ? "AG" : provider === "claude" ? "CL" : "CX"}</span>
                     <strong>{state.displayName}</strong>
                   </div>
                   <b>{statusLabel(state)}</b>

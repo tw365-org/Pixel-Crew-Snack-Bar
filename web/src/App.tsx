@@ -530,7 +530,13 @@ export function App() {
   const selectedDepartmentLead = selectedDepartment
     ? workers[selectedDepartment.leadWorkerId] ?? selectedDepartment.memberWorkerIds.map((id) => workers[id]).find(Boolean)
     : undefined;
-  const activeProvider: ProviderId = active?.provider ?? "claude";
+  const defaultProvider: ProviderId =
+    auth.antigravity?.status === "authenticated"
+      ? "antigravity"
+      : auth.codex?.status === "authenticated"
+        ? "codex"
+        : "claude";
+  const activeProvider: ProviderId = active?.provider ?? defaultProvider;
   const activeWorkspace = active?.workspacePath || targetRepoPath;
   const activeSessionKey = `${activeId ?? "none"}:${activeProvider}:${activeWorkspace}`;
   const workspaceSetupRequired = Boolean(system?.workspaceSetupRequired && workerList.length === 0);
@@ -555,11 +561,12 @@ export function App() {
 
   function focusWorkerLabel(worker: WorkerState, unread = false): string {
     const model = focusModelLabel(worker);
-    return `${unread ? "● " : ""}${worker.name} · ${worker.provider === "claude" ? "Claude" : "Codex"} · ${model} · ${workerFocusStatus(worker)}`;
+    const providerName = worker.provider === "antigravity" ? "Antigravity" : worker.provider === "claude" ? "Claude" : "Codex";
+    return `${unread ? "● " : ""}${worker.name} · ${providerName} · ${model} · ${workerFocusStatus(worker)}`;
   }
   const decisionModelOptions = useMemo(() => {
     const options = new Map<string, { provider: ProviderId; model: string; label: string }>();
-    for (const provider of ["claude", "codex"] as const) {
+    for (const provider of ["antigravity", "claude", "codex"] as const) {
       if (auth[provider].status !== "authenticated") continue;
       const discovered = capabilitiesByWorkspace[activeWorkspace]?.[provider]?.models ?? [];
       const configured = Object.values(workers)
@@ -572,7 +579,7 @@ export function App() {
         if (!options.has(key)) options.set(key, {
           provider,
           model: model.id,
-          label: `${provider === "claude" ? "Claude" : "Codex"} · ${model.label}`,
+          label: `${provider === "antigravity" ? "Antigravity" : provider === "claude" ? "Claude" : "Codex"} · ${model.label}`,
         });
       }
     }

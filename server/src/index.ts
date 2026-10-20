@@ -36,7 +36,7 @@ import type { EphemeralWorkerKind } from "./warroom.js";
 import { WarroomQueue, WARROOM_QUEUE_MAX_WAIT_MS } from "./warroomQueue.js";
 import { costMicrosForTurnEnd } from "./costTracking.js";
 import { executionBudgetFor, normalizeExecutionProfile } from "./executionBudget.js";
-import { buildClaudeMcpAddArgs, buildClaudeMcpRemoveArgs, CapabilityRegistry } from "./capabilities.js";
+import { buildClaudeMcpAddArgs, buildClaudeMcpRemoveArgs, CapabilityRegistry, DEFAULT_ANTIGRAVITY_MODELS } from "./capabilities.js";
 import { buildCodexMcpAddArgs, CodexCapabilityRegistry, DEFAULT_CODEX_SLASH_COMMANDS, isValidCodexCommandName, MAX_CUSTOM_CODEX_SLASH_COMMANDS } from "./codexCapabilities.js";
 import { McpLoginTracker } from "./mcpLogin.js";
 import { LocalStore, type PersistedWorker, type ResumeCandidate } from "./store.js";
@@ -2435,7 +2435,9 @@ function resolveDecisionRuntime(
   const runtimeModels = (provider: ProviderId): string[] => {
     const capabilities = provider === "claude"
       ? claudeCapabilitiesFor(preferredWorkspace || config.targetRepoPath).getState()
-      : codexCapabilitiesFor(preferredWorkspace || config.targetRepoPath).getState();
+      : provider === "codex"
+        ? codexCapabilitiesFor(preferredWorkspace || config.targetRepoPath).getState()
+        : { models: DEFAULT_ANTIGRAVITY_MODELS.map((m) => ({ id: m.id, label: m.label })) };
     return [...new Set([
       ...[...workers.values()]
         .filter((worker) => worker.runner.provider === provider && (!preferredWorkspace || sameWorkspacePath(worker.runner.workspacePath, preferredWorkspace)))
@@ -2546,25 +2548,25 @@ function recentWorkspacePaths(): string[] {
   ].filter(Boolean))];
 }
 
+function antigravityCapabilitiesState(): ReturnType<CapabilityRegistry["getState"]> {
+  return {
+    slashCommands: ["/help", "/clear", "/exit", "/goal", "/mode", "/model"],
+    mcpServers: [],
+    models: DEFAULT_ANTIGRAVITY_MODELS.map((m) => ({ id: m.id, label: m.label })),
+    toolCount: null,
+    builtinTools: null,
+    loading: false,
+    source: "live",
+    updatedAt: null,
+    error: null,
+  };
+}
+
 function capabilitiesSnapshot(): Record<string, Record<ProviderId, ReturnType<CapabilityRegistry["getState"]>>> {
   return Object.fromEntries(recentWorkspacePaths().map((workspacePath) => [
     workspacePath,
     {
-      antigravity: {
-        slashCommands: ["/help", "/clear", "/exit", "/goal", "/mode", "/model"],
-        mcpServers: [],
-        models: [
-          { id: "gemini-3.8-flash-medium", label: "Gemini 3.8 Flash (Medium)" },
-          { id: "gemini-3.8-flash-high", label: "Gemini 3.8 Flash (High)" },
-          { id: "gemini-4-argon-high", label: "Gemini 4 Argon (High)" },
-        ],
-        toolCount: null,
-        builtinTools: null,
-        loading: false,
-        source: "live",
-        updatedAt: null,
-        error: null,
-      },
+      antigravity: antigravityCapabilitiesState(),
       claude: claudeCapabilitiesFor(workspacePath).getState(),
       codex: codexCapabilitiesFor(workspacePath).getState(),
     },
@@ -3142,6 +3144,7 @@ app.get("/api/capabilities", (req, res) => {
     res.json({
       workspacePath,
       capabilities: {
+        antigravity: antigravityCapabilitiesState(),
         claude: claudeCapabilitiesFor(workspacePath).getState(),
         codex: codexCapabilitiesFor(workspacePath).getState(),
       },
@@ -9905,7 +9908,7 @@ async function refreshOneAuth(provider: ProviderId): Promise<ProviderAuthState> 
     restartIdleWorkers(provider);
     for (const workspacePath of recentWorkspacePaths()) {
       if (provider === "claude") void claudeCapabilitiesFor(workspacePath).refresh();
-      else void codexCapabilitiesFor(workspacePath).refresh();
+      else if (provider === "codex") void codexCapabilitiesFor(workspacePath).refresh();
     }
   }
   return next;
