@@ -1387,7 +1387,7 @@ export function App() {
       const error = await startHandoff(active.id, prepared.data.handoffToken);
       setProviderChanging(false);
       if (error) notify(error, "error");
-      else notify(t("正在切換至 {provider}", { provider: provider === "claude" ? "Claude Code" : "Codex" }), "info");
+      else notify(t("正在切換至 {provider}", { provider: provider === "antigravity" ? "Antigravity CLI" : provider === "claude" ? "Claude Code" : "Codex" }), "info");
       return;
     }
     setHandoffTarget(provider);

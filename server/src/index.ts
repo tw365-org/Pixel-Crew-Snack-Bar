@@ -8109,7 +8109,11 @@ const preparedHandoffs = new PreparedTokenStore<PreparedHandoff>(120_000);
 app.post("/api/workers/:id/handoff/prepare", async (req, res) => {
   const worker = requireWorker(res, req.params.id);
   if (!worker) return;
-  const toProvider: ProviderId = req.body?.toProvider === "codex" ? "codex" : "claude";
+  const toProvider: ProviderId = req.body?.toProvider === "antigravity"
+    ? "antigravity"
+    : req.body?.toProvider === "codex"
+      ? "codex"
+      : "claude";
   const toModel = typeof req.body?.toModel === "string" && req.body.toModel.trim() ? req.body.toModel.trim() : null;
   if (toModel && !validModel(toProvider, toModel)) {
     res.status(400).json({ error: t("目標模型名稱格式無效") });

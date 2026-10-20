@@ -167,7 +167,7 @@ function TopBarImpl({
   ).length;
   const showBackgroundServiceStop = canShowBackgroundServiceStop(platform, onShutdown);
   const providerAccounts = accounts?.filter((account) => account.provider === provider) ?? [];
-  const providerLabel = provider === "codex" ? "Codex" : "Claude";
+  const providerLabel = provider === "antigravity" ? "Antigravity CLI" : provider === "codex" ? "Codex" : "Claude";
   const hasHistory = Boolean(active && active.turns.length > 0);
 
   const providerSelect = (className = "top-bar__provider-select") => (
@@ -178,6 +178,7 @@ function TopBarImpl({
       onChange={(event) => onProvider(event.target.value as ProviderId)}
       aria-label={t("選擇 Agent provider")}
     >
+      <option value="antigravity">Antigravity CLI (agy)</option>
       <option value="claude">Claude Code</option>
       <option value="codex">Codex</option>
     </select>
