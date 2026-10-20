@@ -1,7 +1,7 @@
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { useWorkers } from "./hooks/useWorkers";
 import { topDismissibleLayer, useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
-import { useUiPreferences, type CrewFilter, clampTaskLogWidth, clampTaskLogHeight, isTaskLogVisible, shouldAutoCollapseTaskLog } from "./uiPreferences";
+import { useUiPreferences, type CrewFilter, clampTaskLogWidth, clampTaskLogHeight, isTaskLogVisible, shouldAutoCollapseTaskLog, type TimeAtmosphere, type UiFontScale } from "./uiPreferences";
 import { QuestLog, type QuestLogAttention, type TurnDeliverable } from "./components/QuestLog";
 import { MissionActivityFeed } from "./components/MissionActivityFeed";
 import { WorkerTabs } from "./components/WorkerTabs";
@@ -125,6 +125,20 @@ export function App() {
     send, enqueueCommand, removeQueued, reorderQueued, askMission, setModel, setModelFresh, setPersona, setAutoApproveMode, interrupt, resolveApproval, resolveMissionApproval, refreshAuth, refreshUsage, installProvider,
   } = useWorkers();
   const { preferences, updatePreferences, resetPreferences } = useUiPreferences();
+
+  useEffect(() => {
+    document.documentElement.setAttribute("data-ui-scale", preferences.fontScale);
+    let effective = preferences.timeAtmosphere;
+    if (effective === "auto") {
+      const hour = new Date().getHours();
+      if (hour >= 5 && hour < 8) effective = "dawn";
+      else if (hour >= 8 && hour < 15) effective = "day";
+      else if (hour >= 15 && hour < 18) effective = "afternoon";
+      else if (hour >= 18 && hour < 21) effective = "dusk";
+      else effective = "night";
+    }
+    document.documentElement.setAttribute("data-time-theme", effective);
+  }, [preferences.fontScale, preferences.timeAtmosphere]);
   const [workspaceOpen, setWorkspaceOpen] = useState(false);
   const [workspaceMode, setWorkspaceMode] = useState<"create" | "move">("move");
   const [newWorkerProvider, setNewWorkerProvider] = useState<ProviderId>("claude");
@@ -1674,6 +1688,7 @@ export function App() {
         onRemove={handleRemoveWorker}
         onResolveApproval={resolveApproval}
         focusRequest={cameraFocus}
+        timeAtmosphere={preferences.timeAtmosphere}
       />
       </Suspense>
       </div>
@@ -1703,6 +1718,10 @@ export function App() {
         professionalMode={taskFocusMode}
         blackWindowMode={blackWindowMode}
         menuRequest={topMenuRequest}
+        timeAtmosphere={preferences.timeAtmosphere}
+        onTimeAtmosphereChange={(timeAtmosphere: TimeAtmosphere) => updatePreferences({ timeAtmosphere })}
+        fontScale={preferences.fontScale}
+        onFontScaleChange={(fontScale: UiFontScale) => updatePreferences({ fontScale })}
       >
         {topBarEnergyHud}
       </TopBar>}

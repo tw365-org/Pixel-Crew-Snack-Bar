@@ -1,6 +1,7 @@
 import { memo, useCallback, useEffect, useRef, useState, type MutableRefObject, type ReactNode, type Ref } from "react";
 import type { NeedsYouKind } from "../needsYou";
 import type { AccountWithAuth, AutoApproveMode, CapabilityState, ProviderAuthState, ProviderId, UpdateInfo, WorkerState } from "../types";
+import type { TimeAtmosphere, UiFontScale } from "../uiPreferences";
 import { APP_VERSION } from "../appVersion";
 import { lang, setLang, t, tc } from "../i18n";
 import { apiRequest } from "../api";
@@ -87,7 +88,36 @@ type Props = {
   menuRequest?: { menu: "npc" | "platform"; seq: number } | null;
   /** 置中插槽（能量條）：排進 flex 流裡跟其他控件互相讓位，不再蓋住任何按鈕。 */
   children?: ReactNode;
+  timeAtmosphere?: TimeAtmosphere;
+  onTimeAtmosphereChange?(atmosphere: TimeAtmosphere): void;
+  fontScale?: UiFontScale;
+  onFontScaleChange?(scale: UiFontScale): void;
 };
+
+
+function atmosphereIcon(atmo: TimeAtmosphere = "auto"): string {
+  switch (atmo) {
+    case "dawn": return "🌅";
+    case "day": return "☀️";
+    case "afternoon": return "🌤️";
+    case "dusk": return "🌆";
+    case "night": return "🌙";
+    case "auto":
+    default: return "⏰";
+  }
+}
+
+function atmosphereLabel(atmo: TimeAtmosphere = "auto"): string {
+  switch (atmo) {
+    case "dawn": return t("日出 · 晨曦暖橘");
+    case "day": return t("白天 · 晴空白藍");
+    case "afternoon": return t("下午 · 金黃溫暖");
+    case "dusk": return t("傍晚 · 晚霞燒橘");
+    case "night": return t("黑夜 · 賽博深紫");
+    case "auto":
+    default: return t("自動（依電腦時間）");
+  }
+}
 
 export const TopBar = memo(TopBarImpl);
 
@@ -144,6 +174,10 @@ function TopBarImpl({
   outboxUnread = 0,
   outboxDropSeq = 0,
   children,
+  timeAtmosphere = "auto",
+  onTimeAtmosphereChange,
+  fontScale = "medium",
+  onFontScaleChange,
 }: Props) {
   const [healthOpen, setHealthOpen] = useState(false);
   const [runningOpen, setRunningOpen] = useState(false);
@@ -556,6 +590,22 @@ function TopBarImpl({
         </div>
       </details>
 
+      {onTimeAtmosphereChange && (
+        <button
+          type="button"
+          className="top-bar__capability"
+          onClick={() => {
+            const list: TimeAtmosphere[] = ["auto", "dawn", "day", "afternoon", "dusk", "night"];
+            const nextIdx = (list.indexOf(timeAtmosphere) + 1) % list.length;
+            onTimeAtmosphereChange(list[nextIdx]);
+          }}
+          title={t("目前時段：{name}（點擊循環切換）", { name: atmosphereLabel(timeAtmosphere) })}
+        >
+          <span>{atmosphereIcon(timeAtmosphere)}</span>
+          <span style={{ fontSize: "11px", marginLeft: "4px" }}>{timeAtmosphere === "auto" ? t("自動") : atmosphereLabel(timeAtmosphere).split(" ")[0]}</span>
+        </button>
+      )}
+
       <details className="top-bar__more" ref={moreRef} onToggle={(event) => setMoreOpen(event.currentTarget.open)}>
         <summary className="top-bar__capability" aria-label={t("平台設定")} title={t("整個 app 的設定：語言、通知、看板、營運、備份、重啟")}><Icon name="gear" />{t("平台設定")}</summary>
         <div className="top-bar__more-menu">
@@ -568,6 +618,42 @@ function TopBarImpl({
               <Icon name="bell" />{notificationsEnabled ? t("關閉桌面通知") : t("開啟桌面通知")}
               {notificationsEnabled && <span className="top-bar__notify-on" aria-hidden="true">ON</span>}
             </button>
+          </div>
+          <div className="top-bar__menu-group">
+            {onTimeAtmosphereChange && (
+              <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 10px", fontSize: "12px", color: "var(--text)" }}>
+                <span>{t("時段氛圍")}</span>
+                <select
+                  value={timeAtmosphere}
+                  onChange={(e) => onTimeAtmosphereChange(e.target.value as TimeAtmosphere)}
+                  className="top-bar__provider-select"
+                  style={{ width: "160px" }}
+                >
+                  <option value="auto">⏰ {t("自動（依電腦時間）")}</option>
+                  <option value="dawn">🌅 {t("日出 · 晨曦暖橘")}</option>
+                  <option value="day">☀️ {t("白天 · 晴空白藍")}</option>
+                  <option value="afternoon">🌤️ {t("下午 · 金黃溫暖")}</option>
+                  <option value="dusk">🌆 {t("傍晚 · 晚霞燒橘")}</option>
+                  <option value="night">🌙 {t("黑夜 · 賽博深紫")}</option>
+                </select>
+              </label>
+            )}
+            {onFontScaleChange && (
+              <label style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "6px 10px", fontSize: "12px", color: "var(--text)" }}>
+                <span>{t("字體縮放")}</span>
+                <select
+                  value={fontScale}
+                  onChange={(e) => onFontScaleChange(e.target.value as UiFontScale)}
+                  className="top-bar__provider-select"
+                  style={{ width: "160px" }}
+                >
+                  <option value="small">A- {t("精簡 (90%)")}</option>
+                  <option value="medium">A {t("標準 (100%)")}</option>
+                  <option value="large">A+ {t("舒適 (115%)")}</option>
+                  <option value="xlarge">A++ {t("特大清晰 (130%)")}</option>
+                </select>
+              </label>
+            )}
           </div>
           <div className="top-bar__menu-group top-bar__more-compact-features">
             <button type="button" onClick={() => { closeMenus(); onOpenGlobalMemory(); }} title={t("跨所有 NPC 共用的長期記憶")}>

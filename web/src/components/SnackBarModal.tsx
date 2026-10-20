@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from "./Modal";
 import { t } from "../i18n";
 import type { FamilyRole } from "../game/canteenFamily";
@@ -40,7 +40,11 @@ export function SnackBarModal({ role, workers, onClose, onSendCoffee, onCatCheer
 
   if (!role) return null;
 
-  const currentTab = role || activeTab;
+  useEffect(() => {
+    if (role) setActiveTab(role);
+  }, [role]);
+
+  const currentTab = activeTab;
 
   const copyPrompt = (text: string, index: number) => {
     void navigator.clipboard.writeText(text);

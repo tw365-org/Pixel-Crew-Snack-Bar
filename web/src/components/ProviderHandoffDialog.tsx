@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import type { PreparedHandoff, ProviderId, WorkerState } from "../types";
+import { providerDisplayName, type PreparedHandoff, type ProviderId, type WorkerState } from "../types";
 import { t } from "../i18n";
 import { Modal } from "./Modal";
 
@@ -19,7 +19,7 @@ const STAGES = [
   { id: "bootstrapping", label: t("新 LLM 讀取交接") },
 ] as const;
 
-const providerLabel = (provider: ProviderId) => provider === "antigravity" ? "Antigravity CLI" : provider === "claude" ? "Claude Code" : "Codex";
+const providerLabel = providerDisplayName;
 
 export function ProviderHandoffDialog({ worker, toProvider, onPrepare, onStart, onDirectSwitch, onClose }: Props) {
   const initialTerminalHandoffId = useRef(

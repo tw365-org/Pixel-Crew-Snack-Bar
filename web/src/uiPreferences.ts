@@ -5,7 +5,12 @@ export type CrewFilter = "all" | "working" | "attention" | "claude" | "codex" | 
 
 export type FocusPaneLayout = 1 | 2 | 3 | 4;
 
+export type TimeAtmosphere = "auto" | "dawn" | "day" | "afternoon" | "dusk" | "night";
+export type UiFontScale = "small" | "medium" | "large" | "xlarge";
+
 export type UiPreferencesV2 = {
+  timeAtmosphere: TimeAtmosphere;
+  fontScale: UiFontScale;
   version: 7;
   taskLogWidth: number;
   taskLogHeight: number;
@@ -27,6 +32,8 @@ export const COMPACT_OFFICE_MAX_WIDTH = 1440;
 
 export const DEFAULT_UI_PREFERENCES: UiPreferencesV2 = {
   version: 7,
+  timeAtmosphere: "auto",
+  fontScale: "medium",
   taskLogWidth: 600,
   taskLogHeight: 62,
   taskLogView: "summary",
@@ -45,6 +52,8 @@ export const DEFAULT_UI_PREFERENCES: UiPreferencesV2 = {
 const VIEWS = new Set<TaskLogView>(["summary", "activity"]);
 const FILTERS = new Set<CrewFilter>(["all", "working", "attention", "claude", "codex", "room"]);
 const PANE_LAYOUTS = new Set<FocusPaneLayout>([1, 2, 3, 4]);
+const ATMOSPHERES = new Set<TimeAtmosphere>(["auto", "dawn", "day", "afternoon", "dusk", "night"]);
+const FONT_SCALES = new Set<UiFontScale>(["small", "medium", "large", "xlarge"]);
 
 function studioWorkerIds(value: unknown): Record<string, string> {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
@@ -127,6 +136,12 @@ export function parseUiPreferences(value: unknown, viewportWidth?: number): UiPr
     focusPaneLayout: typeof raw.focusPaneLayout === "number" && PANE_LAYOUTS.has(raw.focusPaneLayout as FocusPaneLayout)
       ? raw.focusPaneLayout as FocusPaneLayout
       : DEFAULT_UI_PREFERENCES.focusPaneLayout,
+    timeAtmosphere: typeof raw.timeAtmosphere === "string" && ATMOSPHERES.has(raw.timeAtmosphere as TimeAtmosphere)
+      ? raw.timeAtmosphere as TimeAtmosphere
+      : DEFAULT_UI_PREFERENCES.timeAtmosphere,
+    fontScale: typeof raw.fontScale === "string" && FONT_SCALES.has(raw.fontScale as UiFontScale)
+      ? raw.fontScale as UiFontScale
+      : DEFAULT_UI_PREFERENCES.fontScale,
   };
 }
 

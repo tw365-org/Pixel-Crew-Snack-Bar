@@ -21,6 +21,13 @@ export class CanteenFamily {
   readonly youngerG = new Container();
   readonly sonG = new Container();
 
+  // Persistent graphics to avoid per-frame allocations
+  private readonly bossGraphic = new Graphics();
+  private readonly wifeGraphic = new Graphics();
+  private readonly eldestGraphic = new Graphics();
+  private readonly youngerGraphic = new Graphics();
+  private readonly sonGraphic = new Graphics();
+
   private readonly bubble = new Graphics();
   private bubbleText: Text | null = null;
   private bubbleTimer = 0;
@@ -42,6 +49,12 @@ export class CanteenFamily {
   onMemberClick?: (role: FamilyRole) => void;
 
   constructor() {
+    this.bossG.addChild(this.bossGraphic);
+    this.wifeG.addChild(this.wifeGraphic);
+    this.eldestG.addChild(this.eldestGraphic);
+    this.youngerG.addChild(this.youngerGraphic);
+    this.sonG.addChild(this.sonGraphic);
+
     this.container.addChild(
       this.bossG,
       this.wifeG,
@@ -52,11 +65,11 @@ export class CanteenFamily {
     );
 
     this.setupInteractivity();
-    this.renderBoss(0);
-    this.renderWife(0);
-    this.renderEldest(0);
-    this.renderYounger(0);
-    this.renderSon(0);
+    this.renderBoss();
+    this.renderWife();
+    this.renderEldest();
+    this.renderYounger();
+    this.renderSon();
   }
 
   private setupInteractivity(): void {
@@ -142,151 +155,136 @@ export class CanteenFamily {
     this.onMemberClick?.(role);
   }
 
-  // Pixel sprite renderers
-  private renderBoss(phase: number): void {
-    const g = new Graphics();
-    this.bossG.removeChildren();
-    this.bossG.addChild(g);
-
-    const bob = Math.sin(phase * 4) * 0.8;
+  // Pixel sprite renderers (draw into persistent Graphics instances once)
+  private renderBoss(): void {
+    const g = this.bossGraphic;
+    g.clear();
 
     // Hair & Head
-    g.rect(-5, -23 + bob, 10, 5).fill(0x3f3f46); // dark brown hair
-    g.rect(-5, -21 + bob, 10, 8).fill(0xfbcfe8); // skin
-    g.rect(-3, -19 + bob, 2, 2).fill(0x18181b); // eyes
-    g.rect(1, -19 + bob, 2, 2).fill(0x18181b);
-    g.rect(-3, -15 + bob, 6, 2).fill(0x52525b); // friendly mustache
+    g.rect(-5, -23, 10, 5).fill(0x3f3f46); // dark brown hair
+    g.rect(-5, -21, 10, 8).fill(0xfbcfe8); // skin
+    g.rect(-3, -19, 2, 2).fill(0x18181b); // eyes
+    g.rect(1, -19, 2, 2).fill(0x18181b);
+    g.rect(-3, -15, 6, 2).fill(0x52525b); // friendly mustache
 
     // Body & White apron
-    g.rect(-6, -13 + bob, 12, 10).fill(0x1e3a8a); // navy shirt
-    g.rect(-4, -13 + bob, 8, 12).fill(0xffffff);  // white apron
-    g.rect(-3, -11 + bob, 6, 2).fill(0xef4444);  // red tie / neckerchief
+    g.rect(-6, -13, 12, 10).fill(0x1e3a8a); // navy shirt
+    g.rect(-4, -13, 8, 12).fill(0xffffff);  // white apron
+    g.rect(-3, -11, 6, 2).fill(0xef4444);  // red tie / neckerchief
 
     // Hands wiping or holding mug
-    g.rect(-7, -8 + bob, 3, 3).fill(0xfbcfe8);
-    g.rect(4, -8 + bob, 4, 4).fill(0xd97706);    // coffee mug
-    g.rect(5, -6 + bob, 2, 1).fill(0xffedd5);    // latte foam
+    g.rect(-7, -8, 3, 3).fill(0xfbcfe8);
+    g.rect(4, -8, 4, 4).fill(0xd97706);    // coffee mug
+    g.rect(5, -6, 2, 1).fill(0xffedd5);    // latte foam
   }
 
-  private renderWife(phase: number): void {
-    const g = new Graphics();
-    this.wifeG.removeChildren();
-    this.wifeG.addChild(g);
-
-    const bob = Math.sin(phase * 4 + 1) * 0.8;
+  private renderWife(): void {
+    const g = this.wifeGraphic;
+    g.clear();
 
     // Hair bun & Head
-    g.circle(0, -25 + bob, 3.5).fill(0x78350f);  // hair bun
-    g.rect(-5, -22 + bob, 10, 7).fill(0x78350f); // hair
-    g.rect(-4, -20 + bob, 8, 8).fill(0xfbcfe8);  // face
-    g.rect(-4, -18 + bob, 8, 2).fill(0xd97706);  // stylish glasses
-    g.rect(-3, -18 + bob, 2, 1).fill(0x18181b);  // eyes
-    g.rect(1, -18 + bob, 2, 1).fill(0x18181b);
-    g.rect(-1, -15 + bob, 2, 1).fill(0xe11d48);  // smile
+    g.circle(0, -25, 3.5).fill(0x78350f);  // hair bun
+    g.rect(-5, -22, 10, 7).fill(0x78350f); // hair
+    g.rect(-4, -20, 8, 8).fill(0xfbcfe8);  // face
+    g.rect(-4, -18, 8, 2).fill(0xd97706);  // stylish glasses
+    g.rect(-3, -18, 2, 1).fill(0x18181b);  // eyes
+    g.rect(1, -18, 2, 1).fill(0x18181b);
+    g.rect(-1, -15, 2, 1).fill(0xe11d48);  // smile
 
     // Cardigan & Floral Apron
-    g.rect(-5, -12 + bob, 10, 10).fill(0xf472b6); // pink cardigan
-    g.rect(-3, -12 + bob, 6, 12).fill(0xfef08a);  // yellow apron
+    g.rect(-5, -12, 10, 10).fill(0xf472b6); // pink cardigan
+    g.rect(-3, -12, 6, 12).fill(0xfef08a);  // yellow apron
     // Ledger notebook in hand
-    g.rect(-6, -9 + bob, 6, 8).fill(0x1e293b);   // ledger cover
-    g.rect(-5, -8 + bob, 4, 6).fill(0xffffff);   // white pages
+    g.rect(-6, -9, 6, 8).fill(0x1e293b);   // ledger cover
+    g.rect(-5, -8, 4, 6).fill(0xffffff);   // white pages
   }
 
-  private renderEldest(phase: number): void {
-    const g = new Graphics();
-    this.eldestG.removeChildren();
-    this.eldestG.addChild(g);
-
-    const bob = Math.sin(phase * 3.5) * 0.7;
+  private renderEldest(): void {
+    const g = this.eldestGraphic;
+    g.clear();
 
     // Studious daughter with bob cut & glasses
-    g.rect(-4.5, -21 + bob, 9, 8).fill(0x292524); // neat dark bob
-    g.rect(-4, -18 + bob, 8, 7).fill(0xfde047);  // skin
-    g.rect(-3.5, -17 + bob, 7, 2).fill(0x0284c7);// blue glasses
-    g.rect(-2.5, -17 + bob, 2, 1).fill(0x0f172a);
-    g.rect(0.5, -17 + bob, 2, 1).fill(0x0f172a);
+    g.rect(-4.5, -21, 9, 8).fill(0x292524); // neat dark bob
+    g.rect(-4, -18, 8, 7).fill(0xfde047);  // skin
+    g.rect(-3.5, -17, 7, 2).fill(0x0284c7);// blue glasses
+    g.rect(-2.5, -17, 2, 1).fill(0x0f172a);
+    g.rect(0.5, -17, 2, 1).fill(0x0f172a);
 
     // Knit sweater
-    g.rect(-4.5, -11 + bob, 9, 9).fill(0x059669); // emerald green sweater
-    g.rect(-4, -2 + bob, 8, 3).fill(0x1e293b);   // skirt
+    g.rect(-4.5, -11, 9, 9).fill(0x059669); // emerald green sweater
+    g.rect(-4, -2, 8, 3).fill(0x1e293b);   // skirt
 
     // Holding binder/tablet
-    g.rect(-2, -8 + bob, 5, 6).fill(0x38bdf8);   // digital tablet screen
-    g.rect(-1, -7 + bob, 3, 4).fill(0xffffff);
+    g.rect(-2, -8, 5, 6).fill(0x38bdf8);   // digital tablet screen
+    g.rect(-1, -7, 3, 4).fill(0xffffff);
   }
 
-  private renderYounger(phase: number): void {
-    const g = new Graphics();
-    this.youngerG.removeChildren();
-    this.youngerG.addChild(g);
-
-    const hop = Math.abs(Math.sin(phase * 8)) * 1.8;
+  private renderYounger(): void {
+    const g = this.youngerGraphic;
+    g.clear();
 
     // Twin pigtails
-    g.rect(-6, -19 - hop, 2, 5).fill(0xb45309);  // left pigtail
-    g.rect(4, -19 - hop, 2, 5).fill(0xb45309);   // right pigtail
-    g.rect(-4, -20 - hop, 8, 7).fill(0xb45309);  // hair
-    g.rect(-3.5, -17 - hop, 7, 6).fill(0xfde047);// cute face
-    g.rect(-2.5, -16 - hop, 1.5, 1.5).fill(0x18181b); // sparkly eyes
-    g.rect(1, -16 - hop, 1.5, 1.5).fill(0x18181b);
-    g.rect(-1, -13 - hop, 2, 1).fill(0xf43f5e);  // happy mouth
+    g.rect(-6, -19, 2, 5).fill(0xb45309);  // left pigtail
+    g.rect(4, -19, 2, 5).fill(0xb45309);   // right pigtail
+    g.rect(-4, -20, 8, 7).fill(0xb45309);  // hair
+    g.rect(-3.5, -17, 7, 6).fill(0xfde047);// cute face
+    g.rect(-2.5, -16, 1.5, 1.5).fill(0x18181b); // sparkly eyes
+    g.rect(1, -16, 1.5, 1.5).fill(0x18181b);
+    g.rect(-1, -13, 2, 1).fill(0xf43f5e);  // happy mouth
 
     // Yellow hoodie & shorts
-    g.rect(-4, -11 - hop, 8, 7).fill(0xfacc15);  // bright yellow hoodie
-    g.rect(-3.5, -4 - hop, 7, 3).fill(0x2563eb); // blue denim shorts
-    g.rect(-3, -1 - hop, 2, 2).fill(0xffffff);   // white sneakers
-    g.rect(1, -1 - hop, 2, 2).fill(0xffffff);
+    g.rect(-4, -11, 8, 7).fill(0xfacc15);  // bright yellow hoodie
+    g.rect(-3.5, -4, 7, 3).fill(0x2563eb); // blue denim shorts
+    g.rect(-3, -1, 2, 2).fill(0xffffff);   // white sneakers
+    g.rect(1, -1, 2, 2).fill(0xffffff);
 
     // Serving tray with drinks
-    g.rect(-5 * this.youngerDir, -8 - hop, 8, 2).fill(0x94a3b8); // tray
-    g.rect(-4 * this.youngerDir, -11 - hop, 2, 3).fill(0xd97706); // juice cup
-    g.rect(-1 * this.youngerDir, -11 - hop, 2, 3).fill(0xef4444); // cola can
+    g.rect(-5 * this.youngerDir, -8, 8, 2).fill(0x94a3b8); // tray
+    g.rect(-4 * this.youngerDir, -11, 2, 3).fill(0xd97706); // juice cup
+    g.rect(-1 * this.youngerDir, -11, 2, 3).fill(0xef4444); // cola can
   }
 
-  private renderSon(phase: number): void {
-    const g = new Graphics();
-    this.sonG.removeChildren();
-    this.sonG.addChild(g);
-
-    const bob = Math.sin(phase * 5) * 0.9;
+  private renderSon(): void {
+    const g = this.sonGraphic;
+    g.clear();
 
     // Backwards baseball cap
-    g.rect(-5, -24 + bob, 10, 4).fill(0xef4444);  // red cap
-    g.rect(4, -22 + bob, 3, 2).fill(0xb91c1c);   // backwards cap brim
-    g.rect(-4.5, -20 + bob, 9, 7).fill(0xfcd34d);// energetic tanned skin
-    g.rect(-3, -18 + bob, 2, 1.5).fill(0x18181b);
-    g.rect(1, -18 + bob, 2, 1.5).fill(0x18181b);
-    g.rect(-2, -15 + bob, 4, 1.5).fill(0x78350f);// cheerful smile
+    g.rect(-5, -24, 10, 4).fill(0xef4444);  // red cap
+    g.rect(4, -22, 3, 2).fill(0xb91c1c);   // backwards cap brim
+    g.rect(-4.5, -20, 9, 7).fill(0xfcd34d);// energetic tanned skin
+    g.rect(-3, -18, 2, 1.5).fill(0x18181b);
+    g.rect(1, -18, 2, 1.5).fill(0x18181b);
+    g.rect(-2, -15, 4, 1.5).fill(0x78350f);// cheerful smile
 
     // Muscle shirt & denim overalls
-    g.rect(-5, -13 + bob, 10, 11).fill(0x1e40af); // blue denim overalls
-    g.rect(-3, -13 + bob, 6, 8).fill(0x3b82f6);
-    g.rect(-5, -2 + bob, 4, 3).fill(0x78350f);  // work boots
-    g.rect(1, -2 + bob, 4, 3).fill(0x78350f);
+    g.rect(-5, -13, 10, 11).fill(0x1e40af); // blue denim overalls
+    g.rect(-3, -13, 6, 8).fill(0x3b82f6);
+    g.rect(-5, -2, 4, 3).fill(0x78350f);  // work boots
+    g.rect(1, -2, 4, 3).fill(0x78350f);
 
     // Yellow work gloves holding a cargo box
     if (this.sonHoldingBox) {
-      g.rect(-6, -11 + bob, 12, 10).fill(0xb45309); // cardboard box
-      g.rect(-5, -10 + bob, 10, 8).fill(0xd97706);
-      g.rect(-1, -11 + bob, 2, 10).fill(0x92400e);  // tape
-      g.rect(-7, -9 + bob, 2, 3).fill(0xfacc15);    // yellow gloves
-      g.rect(5, -9 + bob, 2, 3).fill(0xfacc15);
+      g.rect(-6, -11, 12, 10).fill(0xb45309); // cardboard box
+      g.rect(-5, -10, 10, 8).fill(0xd97706);
+      g.rect(-1, -11, 2, 10).fill(0x92400e);  // tape
+      g.rect(-7, -9, 2, 3).fill(0xfacc15);    // yellow gloves
+      g.rect(5, -9, 2, 3).fill(0xfacc15);
     } else {
       // Wiping sweat
-      g.rect(-7, -15 + bob, 3, 3).fill(0xfacc15);
-      g.rect(4, -9 + bob, 2, 3).fill(0xfacc15);
+      g.rect(-7, -15, 3, 3).fill(0xfacc15);
+      g.rect(4, -9, 2, 3).fill(0xfacc15);
     }
   }
 
   update(elapsed: number, dt: number): void {
     this.animTimer += dt * 0.001;
 
-    // Re-render slight animation pulses
-    this.renderBoss(this.animTimer);
-    this.renderWife(this.animTimer);
-    this.renderEldest(this.animTimer);
-    this.renderYounger(this.animTimer);
-    this.renderSon(this.animTimer);
+    // Breathing animation pulses via container offset (Zero GC allocations)
+    this.bossGraphic.y = Math.sin(this.animTimer * 4) * 0.8;
+    this.wifeGraphic.y = Math.sin(this.animTimer * 4 + 1) * 0.8;
+    this.eldestGraphic.y = Math.sin(this.animTimer * 3.5) * 0.7;
+    this.sonGraphic.y = Math.sin(this.animTimer * 5) * 0.9;
+    this.youngerGraphic.y = -Math.abs(Math.sin(this.animTimer * 8)) * 1.8;
 
     // Speech bubble auto fade
     if (this.bubbleTimer > 0) {
@@ -305,7 +303,9 @@ export class CanteenFamily {
       const speed = 0.03 * dt;
       this.youngerX += (ydx / ydist) * speed;
       this.youngerY += (ydy / ydist) * speed;
+      const prevDir = this.youngerDir;
       this.youngerDir = ydx > 0 ? 1 : -1;
+      if (prevDir !== this.youngerDir) this.renderYounger();
       this.youngerG.position.set(this.youngerX, this.youngerY);
     } else {
       // Pick next destination (between canteen counter and office floor)
@@ -327,6 +327,7 @@ export class CanteenFamily {
     if (this.sonTimer > 3500) {
       this.sonTimer = 0;
       this.sonHoldingBox = !this.sonHoldingBox;
+      this.renderSon();
     }
   }
 }

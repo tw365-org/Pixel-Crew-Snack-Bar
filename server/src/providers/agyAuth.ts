@@ -23,6 +23,9 @@ export class AntigravityAuthProvider implements AgentAuthProvider {
     let stdout = "";
     let stderr = "";
     try {
+      // Currently verify binary presence & executable health via `agy --version`.
+      // When Antigravity CLI exposes structured `agy auth status --json` in the future,
+      // this check can easily be upgraded to parse user quota and authenticated account info.
       ({ stdout, stderr } = await execCli("agy", ["--version"], {
         timeout: 5_000,
       }));

@@ -7,6 +7,7 @@
 import "pixi.js/unsafe-eval";
 import { Application, Container, Graphics, Text } from "pixi.js";
 import type { CharacterState } from "../types";
+import type { TimeAtmosphere } from "../uiPreferences";
 import type { StationKey } from "../stations";
 import { Room, ART_W, ART_H, WALL_H, ROOM_SPOTS, type RoomSpot } from "./room";
 import { FurnitureLayer, FURNITURE_DEFS } from "./furniture";
@@ -160,6 +161,7 @@ export type SceneHandle = {
   setTodayFailures(byWorker: ReadonlyMap<string, number>): void;
   triggerCatPurr?(): void;
   triggerCoffeeCheer?(targetId?: string): void;
+  setTimeAtmosphere?(atmosphere: TimeAtmosphere): void;
   destroy(): void;
 } & SceneCameraControls;
 
@@ -471,9 +473,22 @@ export async function createScene(
     return DAYLIGHT_KEYS[DAYLIGHT_KEYS.length - 1].sky;
   }
 
+  let currentAtmosphere: TimeAtmosphere = "auto";
+
   function applyDaylight(): void {
     const now = officeNow();
-    const hourFloat = now.getHours() + now.getMinutes() / 60;
+    let hourFloat = now.getHours() + now.getMinutes() / 60;
+    if (currentAtmosphere === "dawn") {
+      hourFloat = 6.5; // 日出晨曦暖橘
+    } else if (currentAtmosphere === "day") {
+      hourFloat = 12.0; // 白天亮藍
+    } else if (currentAtmosphere === "afternoon") {
+      hourFloat = 16.5; // 下午金黃
+    } else if (currentAtmosphere === "dusk") {
+      hourFloat = 18.5; // 傍晚燒橘
+    } else if (currentAtmosphere === "night") {
+      hourFloat = 22.0; // 黑夜深藍
+    }
     officeDecor.setSeasonal(seasonal(now));
     room.setSky(daylightSky(hourFloat));
     const night = nightFactor(hourFloat) >= 0.5;

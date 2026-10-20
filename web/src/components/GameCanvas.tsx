@@ -18,6 +18,7 @@ import { computeCtxGauge, SWAP_THRESHOLD_TOKENS, type CtxGauge } from "../ctxGau
 import { stripMarkdown } from "../speechText";
 import { friendlyToolSpeech } from "../workerState";
 import { t, tc } from "../i18n";
+import type { TimeAtmosphere } from "../uiPreferences";
 import { clearViewRect, edgeMarkers, isOffscreen, nameInitials, rectCenter, type EdgeMarker, type Pt, type Rect, type SceneCameraControls } from "../game/cameraFocus";
 import { lastDoneLine } from "../lastDone";
 import { loadSeenErrors, markErrorSeen, pendingApprovalFor, saveSeenErrors, sceneSignals, unansweredAutopilotAsk, type SceneSignals } from "../sceneSignals";
@@ -362,11 +363,12 @@ type Props = {
   onResolveApproval?(workerId: string, approvalId: string, decision: ApprovalDecision): Promise<string | null>;
   /** 使用者在介面別處（左欄、手機頭像列、頂欄「需要你」）主動點了某位 NPC：鏡頭滑過去。seq 每次點擊遞增。 */
   focusRequest?: { id: string; seq: number } | null;
+  timeAtmosphere?: TimeAtmosphere;
 };
 
 export function GameCanvas({
   workers, activeId, completedTurns = 0, collaborations = [], missions = [], departments = [], roundtableIds = EMPTY_ROUNDTABLE_IDS, bossRoom = false, bossTaskDepartmentIds, bossTasks = EMPTY_BOSS_TASKS, needsYouItems, onNeedsYou, swapThresholdTokens, brainSwapEvent, onMeetingTableClick, onEmptyTap, onOpenOutbox, onSelect, onOpenLog, onAvatarError,
-  onRename, onAvatarWorkshop, onPersonaEditor, onDepartmentMission, onRenameDepartment, onRoomSwitch, onRemove, onResolveApproval, focusRequest,
+  onRename, onAvatarWorkshop, onPersonaEditor, onDepartmentMission, onRenameDepartment, onRoomSwitch, onRemove, onResolveApproval, focusRequest, timeAtmosphere,
 }: Props) {
   const hostRef = useRef<HTMLDivElement>(null);
   const bubbleRefs = useRef(new Map<string, HTMLDivElement>());
@@ -929,6 +931,12 @@ export function GameCanvas({
   useEffect(() => {
     sceneRef.current?.setMilestone(milestoneLevel(completedTurns));
   }, [completedTurns]);
+
+  useEffect(() => {
+    if (sceneRef.current && timeAtmosphere) {
+      sceneRef.current.setTimeAtmosphere?.(timeAtmosphere);
+    }
+  }, [timeAtmosphere, sceneReady]);
 
   // 桌上便利貼＝每位的排隊指令。
   useEffect(() => {

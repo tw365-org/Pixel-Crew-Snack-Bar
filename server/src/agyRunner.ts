@@ -142,16 +142,16 @@ export class AgySession implements AgentSession {
       }
     });
 
-    child.on("close", () => {
+    child.on("close", (code) => {
       this.child = null;
       if (this.busy) {
         this.busy = false;
         this.onEvent({
           type: "turn_end",
-          resultText: "",
+          resultText: code === 0 ? "" : "CLI process closed unexpectedly",
           costUsd: 0,
           durationMs: 0,
-          isError: false,
+          isError: code !== 0,
           permissionDenials: [],
         });
       }

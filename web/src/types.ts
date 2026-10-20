@@ -2,6 +2,18 @@ import type { StationKey } from "./stations";
 
 export type ProviderId = "claude" | "codex" | "antigravity";
 
+export function providerDisplayName(provider: ProviderId): string {
+  switch (provider) {
+    case "antigravity":
+      return "Antigravity CLI";
+    case "codex":
+      return "Codex";
+    case "claude":
+    default:
+      return "Claude Code";
+  }
+}
+
 export type McpLoginResult = {
   provider: ProviderId;
   workspacePath: string;
